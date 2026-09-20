@@ -1,0 +1,131 @@
+#!/bin/sh
+
+set -e
+
+# $1: temperature in tenths of a degree (e.g. 282 = 28.2°C)
+# returns rounded interpolated int
+lerp_fan_speed()
+{
+	temp=$1
+	low_temp=
+	high_temp=
+	low_speed=
+	high_speed=
+
+	while IFS='=' read -r t speed # get proper range
+	do
+		[ -n "$t" ] || continue
+
+		# Curve temperatures are specified in whole degrees.
+		t=$((t * 10))
+
+		if [ "$t" -le "$temp" ] &&
+			{ [ -z "$low_temp" ] || [ "$t" -gt "$low_temp" ]; }; then
+			low_temp=$t
+			low_speed=$speed
+		fi
+
+		if [ "$t" -ge "$temp" ] &&
+			{ [ -z "$high_temp" ] || [ "$t" -lt "$high_temp" ]; }; then
+			high_temp=$t
+			high_speed=$speed
+		fi
+	done <<EOF
+$FAN_CURVE
+EOF
+
+	if [ -z "$low_temp" ]; then # Below the lowest curve point.
+		echo "$high_speed"
+	elif [ -z "$high_temp" ] || [ "$high_temp" -eq "$low_temp" ]; then 	# At or above the highest curve point, or exact curve point.
+		echo "$low_speed"
+	else # Linear interpolation rounded to the nearest integer.
+		numerator=$(( (high_speed - low_speed) * (temp - low_temp) ))
+		denominator=$(( high_temp - low_temp ))
+
+		speed=$(( (numerator + denominator / 2) / denominator ))
+		echo $((low_speed + speed))
+	fi
+}
+
+evl()
+{
+	# echo "evl: [$*]" >&2
+	awk "BEGIN { print $* }"
+}
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+SET_FAN_SPEED_CMD="$SCRIPT_DIR/commands/set_fan_speed"
+
+if [ ! -x "$SET_FAN_SPEED_CMD" ]; then
+	echo "Error: $SET_FAN_SPEED_CMD is not present. Try creating it or use existing one with use.sh"
+	exit 1
+fi
+
+for f in "$SCRIPT_DIR"/includes/* "$SCRIPT_DIR"/includes/.*; do
+	[ -f "$f" ] && . "$f"
+done
+
+prev_speed=0
+for fan in "$SCRIPT_DIR"/fans/*
+do
+	fan_name=$(basename "$fan")
+
+	# skip disabled fans (_ prefix) and anything that isn't an actual fan config file
+	if [ "$fan_name" != "${fan_name#_}" ] || [ ! -f "$fan" ]; then
+		continue
+	fi
+
+	unset SENSOR_CMD
+	unset FAN_CURVE
+
+	# shellcheck source=/dev/null
+	. "$fan"
+
+	if [ -z "$SENSOR_CMD" ]; then
+		echo "Error: SENSOR_CMD is not specified for fan '$fan_name', skipping..."
+		continue
+	fi
+
+	if [ -z "$FAN_CURVE" ]; then
+		echo "Error: FAN_CURVE is not specified for fan '$fan_name', skipping..."
+		continue
+	fi
+
+	# SENSOR_CMD is relative to the fan configs real dir (resolve symlinks like fans/*)
+	temp=$(cd "$(dirname "$(readlink -f "$fan")")" && cd "$SCRIPT_DIR" && eval "$SENSOR_CMD")
+
+	if [ -z "$temp" ]; then
+		continue
+	fi
+
+	# Convert sensor temperature to tenths of a degree.
+	int_part=${temp%%.*}
+	frac_part=${temp#*.}
+
+	if [ "$frac_part" = "$temp" ]; then
+		frac_part=0
+	else
+		frac_part=${frac_part%?}
+	fi
+
+	int_temp=$((int_part * 10 + frac_part))
+
+	speed=$(lerp_fan_speed "$int_temp")
+
+	if [ -n "$NEIGHBOR_FAN_OFFSET" ] && [ "$prev_speed" -eq "$speed" ]; then
+		speed="$((speed + NEIGHBOR_FAN_OFFSET))"
+	fi
+
+	# clamp for safety, in case the curve is misconfigured
+	if [ "$speed" -lt "${DEFAULT_MIN_SPEED:-5}" ]; then
+		speed=${DEFAULT_MIN_SPEED:-5}
+	elif [ "$speed" -gt "${DEFAULT_MAX_SPEED:-100}" ]; then
+		speed=${DEFAULT_MAX_SPEED:-100}
+	fi
+
+	# echo "Set fan '$fan_name' to $speed% ($SENSOR_CMD: $temp)"
+
+	"$SET_FAN_SPEED_CMD" "$fan_name" "$speed"
+	prev_speed=$speed
+done

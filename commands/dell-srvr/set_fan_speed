@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# $1: fan id
+# $2: fan speed pwm (0-100)
+
+ipmitool raw 0x30 0x30 0x2 "0x$1" "0x$(printf '%x' $2)"

@@ -1,0 +1,105 @@
+#!/bin/sh
+
+# Gets $1 (avg|min|max, avg by default) temp of sensor $2 (if omitted, all sensors), returns number
+
+mode=${1:-avg}
+sensor=${2:-}
+
+set -f
+oldIFS=$IFS
+IFS='
+'
+
+current_sensor=
+
+parse_temp()
+{
+	# echo "$1"
+	case $1 in
+		*:*) ;;
+		*)
+			current_sensor=$1
+			return 1
+		;;
+	esac
+
+	[ -z "$sensor" ] || [ "$current_sensor" = "$sensor" ] || return 1
+
+	value=${1#*:}
+	value=${value#${value%%[![:space:]]*}}
+	value=${value%%[[:space:]]*}
+
+	case $value in
+		+*°C|-*°C) ;;
+		*) return 1 ;;
+	esac
+
+	value=${value%°C}
+	case $value in
+		+*)
+			sign=1
+			value=${value#+}
+		;;
+		-*)
+			sign=-1
+			value=${value#-}
+		;;
+		*) sign=1 ;;
+	esac
+
+	integer=${value%%.*}
+	fraction=${value#*.}
+
+	[ "$fraction" = "$value" ] && fraction=0
+
+	temp=$((sign * (integer * 10 + fraction)))
+	return 0
+}
+
+case $mode in
+	a|avg)
+		sum=0
+		count=0
+		for line in $SENSORS; do
+			if parse_temp "$line"; then
+				sum=$((sum + temp))
+				count=$((count + 1))
+			fi
+		done
+
+		[ "$count" -gt 0 ] || exit 0
+		result=$((sum / count))
+		;;
+	mi|min)
+		result=
+		for line in $SENSORS; do
+			if parse_temp "$line"; then
+				if [ -z "$result" ] || [ "$temp" -lt "$result" ]; then
+					result=$temp
+				fi
+			fi
+		done
+
+		[ -n "$result" ] || exit 0
+		;;
+	ma|max)
+		result=
+		for line in $SENSORS; do
+			if parse_temp "$line"; then
+				if [ -z "$result" ] || [ "$temp" -gt "$result" ]; then
+					result=$temp
+				fi
+			fi
+		done
+
+		[ -n "$result" ] || exit 0
+		;;
+	*) exit 2 ;;
+esac
+
+if [ "$result" -lt 0 ]; then
+	result=$(( -result ))
+	printf -- '-%d.%d\n' "$((result / 10))" "$((result % 10))"
+else
+	printf '%d.%d\n' "$((result / 10))" "$((result % 10))"
+fi

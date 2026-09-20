@@ -1,0 +1,6 @@
+#!/bin/sh
+
+SENSORS=$(sensors 2>/dev/null)
+export SENSORS
+
+NEIGHBOR_FAN_OFFSET=1 # Offset applied to the next fan if it has the same speed as the previous one (attempts to mitigate https://www.youtube.com/watch?v=F7ia_FZcthQ).

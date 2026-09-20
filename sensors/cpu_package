@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Gets temp of CPU package $1, returns number
+
+while read -r a b c temp rest; do
+	if [ "$a" = "Package" ] && [ "$b" = "id" ] && [ "$c" = "$1:" ]; then
+		temp=${temp#+}
+		temp=${temp%°C}
+		echo "$temp"
+		break
+	fi
+done <<EOF
+$SENSORS
+EOF

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+SENSOR_CMD='./sensors/cpu_all_cores' # use evl for advanced expressions ('evl "$(./sensors/cpu_all_cores) + 5"')
+
+#FAN_CURVE='<temperature>=<speed> ...' points that will be linearly interpolated
+FAN_CURVE='
+0=5
+40=10
+70=60
+100=100
+'

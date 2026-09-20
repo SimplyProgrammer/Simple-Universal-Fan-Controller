@@ -1,0 +1,12 @@
+.*
+!.gitignore
+
+fans/*
+!fans/
+!fans/*/
+
+commands/*
+!commands/
+!commands/*/
+
+!_*

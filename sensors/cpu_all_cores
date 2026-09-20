@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Gets $1 (avg|min|max, avg by default) temperature of all cores belonging to package/cpu $2 (if omitted, all available cores), returns number
+
+awk -v mode="${1-}" -v package="${2-}" '
+	mode != "" && mode != "avg" && mode != "min" && mode != "max" {
+		exit 2
+	}
+
+	package == "" {
+		in_package = 1
+	}
+	mode == "" {
+		mode = "avg"
+	}
+
+	$0 ~ "^Package id " package ":" {
+		in_package = 1
+		next
+	}
+
+	in_package && /^Core [0-9]+:/ {
+		temperature = $3
+		gsub(/[+°C]/, "", temperature)
+		sum += temperature
+		count++
+		if (min == "" || temperature < min) {
+			min = temperature
+		}
+		if (max == "" || temperature > max) {
+			max = temperature
+		}
+		next
+	}
+
+	in_package && package != "" && NF == 0 {
+		exit
+	}
+
+	END {
+		if (count > 0) {
+			if (mode == "avg") {
+				printf "%.1f\n", sum / count
+			} else if (mode == "min") {
+				printf "%.1f\n", min
+			} else if (mode == "max") {
+				printf "%.1f\n", max
+			}
+		}
+	}
+' <<EOF
+$SENSORS
+EOF
