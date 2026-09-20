@@ -50,10 +50,8 @@ EOF
 evl()
 {
 	# echo "evl: [$*]" >&2
-	awk "BEGIN { print $* }"
+	exec "$AWK" "BEGIN { print $* }"
 }
-
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
 SET_FAN_SPEED_CMD="$SCRIPT_DIR/commands/set-fan-speed"
 
@@ -66,21 +64,19 @@ for f in "$SCRIPT_DIR"/includes/* "$SCRIPT_DIR"/includes/.*; do
 	[ -f "$f" ] && . "$f"
 done
 
+cd "$SCRIPT_DIR" 
+
 prev_speed=0
 for fan in "$SCRIPT_DIR"/fans/*
 do
-	fan_name=$(basename "$fan")
-
-	# skip disabled fans (_ prefix) and anything that isn't an actual fan config file
-	if [ "$fan_name" != "${fan_name#_}" ] || [ ! -f "$fan" ]; then
+	fan_name=${fan##*/}
+	if [ "$fan_name" != "${fan_name#_}" ] || [ ! -f "$fan" ]; then # skip disabled fans (_ prefix) and anything that isn't an actual fan config file
 		continue
 	fi
 
-	unset SENSOR_CMD
-	unset FAN_CURVE
-
 	# shellcheck source=/dev/null
 	. "$fan"
+	# echo "$SENSOR_CMD" "$FAN_CURVE"
 
 	if [ -z "$SENSOR_CMD" ]; then
 		echo "Error: SENSOR_CMD is not specified for fan '$fan_name', skipping..."
@@ -93,7 +89,7 @@ do
 	fi
 
 	# SENSOR_CMD is relative to the fan configs real dir (resolve symlinks like fans/*)
-	temp=$(cd "$(dirname "$(readlink -f "$fan")")" && cd "$SCRIPT_DIR" && eval "$SENSOR_CMD")
+	temp=$(eval "$SENSOR_CMD")
 
 	if [ -z "$temp" ]; then
 		continue
@@ -112,9 +108,17 @@ do
 	int_temp=$((int_part * 10 + frac_part))
 
 	speed=$(lerp_fan_speed "$int_temp")
-
 	if [ -n "$NEIGHBOR_FAN_OFFSET" ] && [ "$prev_speed" -eq "$speed" ]; then
 		speed="$((speed + NEIGHBOR_FAN_OFFSET))"
+	fi
+
+	cache_file="$CACHE_DIR/$fan_name"
+	if [ -f "$cache_file" ]; then
+		read -r cached_speed < "$cache_file"
+		if [ "$cached_speed" -eq "$speed" ]; then
+			prev_speed=$speed
+			continue
+		fi
 	fi
 
 	# clamp for safety, in case the curve is misconfigured
@@ -127,5 +131,7 @@ do
 	# echo "Set fan '$fan_name' to $speed% ($SENSOR_CMD: $temp)"
 
 	"$SET_FAN_SPEED_CMD" "$fan_name" "$speed"
+	echo "$speed" > "$cache_file"
+
 	prev_speed=$speed
 done

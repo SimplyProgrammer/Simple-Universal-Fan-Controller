@@ -1,33 +1,36 @@
 #!/bin/sh
 
+set -e
+
 INTERVAL=${1:-3}
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$(readlink -f "$0")")" && pwd)
+export SCRIPT_DIR
 
-ENABLE_MANUAL="$SCRIPT_DIR/commands/enable-manual-fan-ctrl"
+AWK=$(command -v awk)
+export AWK
+
+CACHE_DIR=/run/fanctrl/fans
+mkdir -p "$CACHE_DIR"
+export CACHE_DIR
+
+ENABLE_MANUAL=$(cat "$SCRIPT_DIR/commands/enable-manual-fan-ctrl")
 FANCTRL="$SCRIPT_DIR/fanctrl"
-
-run=1
 
 cleanup()
 {
-	"$ENABLE_MANUAL" 0
-	run=0
+	rm -rf "$CACHE_DIR"
+	sh -c "$ENABLE_MANUAL" _ 0
 }
 
-trap cleanup EXIT HUP INT TERM QUIT
+trap cleanup EXIT
+trap 'exit 1' HUP INT TERM QUIT
 
-"$ENABLE_MANUAL" 1 || exit 1
+eval "$ENABLE_MANUAL"
 
-while [ "$run" -eq 1 ]; do
+while :
+do
 	sh "$FANCTRL"
-	stts=$?
-
-	if [ "$stts" -ne 0 ]; then
-		cleanup
-		exit "$stts"
-	fi
-
 	sleep "$INTERVAL"
 done
 

@@ -92,6 +92,9 @@ Likewise a custom hardware profile should provide
 both `enable-manual-fan-ctrl` and `set-fan-speed` with the same argument
 contracts as the files in `commands/`.
 
+#### Servers - ipmitool
+For servers make sure that you have ipmi support enabled (if required) and ipmitool installed.
+
 ### 2. Create fan configurations with `_config-fan.sh`
 
 Create or update a fan interactively from the `fans/` directory. Example:
@@ -146,5 +149,5 @@ Its general good practice for the custom ones to be dot files, so they are disti
   values when those variables are provided by `includes/`. They have default fallbacks and is recommended to not change them.
 - Ensure every active fan has both `SENSOR_CMD` and `FAN_CURVE` (in place or sourced from base).
 - In case of any pass errors or termination, the script is configured to immediately hand over control back to the hardware (to disable manual control), preventing thermal issues in case of script failure.
-  - Although note that if your system kernel panics or crashes in such a way that this never occurs it is theoretically possible for the fans to get stuck at low speeds which may result in equipment damage.\\
+  - But note that if your system kernel panics or crashes in such a way that this never occurs it is theoretically possible for the fans to get stuck at low speeds which may result in equipment damage.\\
 Note that author is not responsibly for any such cases!

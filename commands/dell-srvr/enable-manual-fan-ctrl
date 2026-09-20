@@ -2,4 +2,4 @@
 
 # $1: bool (0 = disable manual fan control, 1 = enable manual fan control)
 
-ipmitool raw 0x30 0x30 0x1 "0x$((! $1))"
+ipmitool raw 0x30 0x30 0x1 "$((! ${1:-1}))"

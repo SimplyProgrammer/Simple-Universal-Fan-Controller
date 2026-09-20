@@ -2,7 +2,7 @@
 
 # Gets $1 (avg|min|max, avg by default) temperature of all cores belonging to package/cpu $2 (if omitted, all available cores), returns number
 
-awk -v mode="${1-}" -v package="${2-}" '
+"$AWK" -v mode="${1-}" -v package="${2-}" '
 	mode != "" && mode != "avg" && mode != "min" && mode != "max" {
 		exit 2
 	}
