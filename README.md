@@ -69,8 +69,8 @@ with `journalctl -u fanctrl.service`.
 * includes/ 			Shared shell variables loaded in each pass
 * sensors/ 				Custom pre made sensor
 
-The active hardware commands are `commands/enable_manual_fan_ctrl` and
-`commands/set_fan_speed`. The active fan files are the regular files or
+The active hardware commands are `commands/enable-manual-fan-ctrl` and
+`commands/set-fan-speed`. The active fan files are the regular files or
 symlinks directly inside `fans/`; `_`-prefixed helper files and subdirectories
 are not treated as fans.
 
@@ -89,7 +89,7 @@ cd /opt/fanctrl/commands
 ```
 
 Likewise a custom hardware profile should provide
-both `enable_manual_fan_ctrl` and `set_fan_speed` with the same argument
+both `enable-manual-fan-ctrl` and `set-fan-speed` with the same argument
 contracts as the files in `commands/`.
 
 ### 2. Create fan configurations with `_config-fan.sh`
@@ -97,7 +97,7 @@ contracts as the files in `commands/`.
 Create or update a fan interactively from the `fans/` directory. Example:
 
 ```sh
-./_config-fan.sh 0 default ./sensors/cpu_all_cores
+./_config-fan.sh 0 default ./sensors/cpu-all-cores
 ```
 
 The arguments provide defaults for fan name, base config, and sensor command;
@@ -114,16 +114,16 @@ file can source a file in `fans/configs/` or another fan file, then override
 The premade custom sensor helpers print a numeric temperature in degrees Celsius:
 
 ```sh
-./sensors/cpu_all_cores             # avg, min or max of specified cpu package cores
-./sensors/cpu_package 0             # temperature of specified cpu package
-./sensors/sensors                   # avg, min or max of all or specified sensor
+./sensors/cpu-all-cores         # avg, min or max of specified cpu package cores
+./sensors/cpu-package 0         # temperature of specified cpu package
+./sensors/sensors               # avg, min or max of all or specified sensor
 ```
 
 Which are expected to be used in particular fans `SENSOR_CMD`, for instance:
 
 
 ```sh
-SENSOR_CMD='evl "$(./sensors/cpu_all_cores) + 5"'
+SENSOR_CMD='evl "$(./sensors/cpu-all-cores) + 5"'
 ```
 
 The bundled curves are:

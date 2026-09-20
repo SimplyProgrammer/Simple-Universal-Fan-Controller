@@ -4,7 +4,7 @@ INTERVAL=${1:-3}
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$(readlink -f "$0")")" && pwd)
 
-ENABLE_MANUAL="$SCRIPT_DIR/commands/enable_manual_fan_ctrl"
+ENABLE_MANUAL="$SCRIPT_DIR/commands/enable-manual-fan-ctrl"
 FANCTRL="$SCRIPT_DIR/fanctrl"
 
 run=1

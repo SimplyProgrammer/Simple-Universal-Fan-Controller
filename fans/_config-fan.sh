@@ -7,7 +7,7 @@
 
 cd "$(dirname "$0")" || exit 1
 
-comment="# use evl for advanced expressions ('evl \"\$(./sensors/cpu_all_cores) + 5\"')"
+comment="# use evl for advanced expressions ('evl \"\$(./sensors/cpu-all-cores) + 5\"')"
 default_fan_name=$1
 default_base_config=$2
 default_sensor_command=$3
@@ -58,7 +58,7 @@ IFS= read -r sensor_command || exit 1
 [ -n "$sensor_command" ] || sensor_command=$default_sensor_command
 
 if [ -z "$sensor_command" ]; then
-	sensor_command='./sensors/cpu_all_cores'
+	sensor_command='./sensors/cpu-all-cores'
 elif case "$sensor_command" in *[[:space:]]*) true ;; *) false ;; esac; then
 	sensor_command="evl \"$sensor_command\""
 fi

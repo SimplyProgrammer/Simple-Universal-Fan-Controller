@@ -55,7 +55,7 @@ evl()
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-SET_FAN_SPEED_CMD="$SCRIPT_DIR/commands/set_fan_speed"
+SET_FAN_SPEED_CMD="$SCRIPT_DIR/commands/set-fan-speed"
 
 if [ ! -x "$SET_FAN_SPEED_CMD" ]; then
 	echo "Error: $SET_FAN_SPEED_CMD is not present. Try creating it or use existing one with use.sh"
