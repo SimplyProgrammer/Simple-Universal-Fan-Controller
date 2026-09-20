@@ -1,6 +1,6 @@
 # Simple Universal Fan Controller
 
-Small POSIX shell fan controller for systems where fan control is exposed.
+Small yet powerful POSIX shell fan controller for Linux systems.
 It was designed with dell 13/14 gen servers and/or hardware that supports manual fan control through `ipmitool` or similar utility, but in theory it can be adapted for any system.
 Unlike similar scripts, this one is:
 * Fully extensible
@@ -138,7 +138,8 @@ The bundled curves are:
 - `elbow`: quieter <50, louder above it.
 
 Feel free to create your own sensors as well as fan curves.
-Its general good practice for the custom ones to be dot files, so they are distinguished.
+Its general good practice for the custom ones to be dot files, so they are distinguished.\\
+All of this makes the script equivalent or even superior to what your motherboard UEFI allows.
 
 ## Safety Notes
 
