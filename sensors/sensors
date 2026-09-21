@@ -23,7 +23,10 @@ parse_temp()
 		;;
 	esac
 
-	[ -z "$sensor" ] || [ "$current_sensor" = "$sensor" ] || return 1
+	case "$current_sensor" in
+		*"$sensor"*) ;;
+		*) [ -z "$sensor" ] || return 1 ;; # Not our sensor
+	esac
 
 	value=${1#*:}
 	value=${value#${value%%[![:space:]]*}}

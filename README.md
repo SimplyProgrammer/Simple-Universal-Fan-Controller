@@ -10,10 +10,10 @@ Unlike similar scripts, this one is:
 * Bare bones and fairly minimalistic - no docker required, minimal extra dependencies, it runs directly on the host in basic `sh`
 
 ## Installation as a systemd Service (work in progress)
-The controller needs `grep`, `awk`, `sed`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices).\\
+The controller needs `awk`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices). `grep` and `sed` are optional but you might need them.\\
 You need to be root or have root permissions (`sudo`) in order to proceed!
 
-Clone this repo into /opt/fanctrl (clone depth 1 should be enough) and set proper permissions:
+Clone this repo into /opt/fanctrl and set proper permissions:
 ```sh
 sudo mkdir -p /opt/fanctrl && cd "$_" && sudo git clone --depth 1 "https://github.com/SimplyProgrammer/Simple-Universal-Fan-Controller.git" . || exit 1
 

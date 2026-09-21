@@ -5,14 +5,13 @@ set -e
 INTERVAL=${1:-3}
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$(readlink -f "$0")")" && pwd)
-export SCRIPT_DIR
 
 AWK=$(command -v awk)
-export AWK
 
 CACHE_DIR=/run/fanctrl/fans
 mkdir -p "$CACHE_DIR"
-export CACHE_DIR
+
+export SCRIPT_DIR CACHE_DIR AWK
 
 ENABLE_MANUAL=$(cat "$SCRIPT_DIR/commands/enable-manual-fan-ctrl")
 FANCTRL="$SCRIPT_DIR/fanctrl"
