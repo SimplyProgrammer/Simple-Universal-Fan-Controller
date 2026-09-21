@@ -10,7 +10,7 @@ Unlike similar scripts, this one is:
 * Bare bones and fairly minimalistic - no docker required, minimal extra dependencies, it runs directly on the host in basic `sh`
 
 ## Installation as a systemd Service (work in progress)
-The controller needs `awk`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices). `grep` and `sed` are optional but you might need them.\\
+The controller needs `awk`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices). `grep` and `sed` are optional but you might need them.<br>
 You need to be root or have root permissions (`sudo`) in order to proceed!
 
 Clone this repo into /opt/fanctrl and set proper permissions:
@@ -94,7 +94,7 @@ both `enable-manual-fan-ctrl` and `set-fan-speed` with the same argument
 contracts as the files in `commands/`.
 
 #### Servers - ipmitool
-For servers make sure that you have ipmi support enabled (if required) and ipmitool installed (or other utility that can control the fan speeds).\\
+For servers make sure that you have ipmi support enabled (if required) and ipmitool installed (or other utility that can control the fan speeds).<br>
 Note: Supermicro servers are supported as well in theory, but script was only ever tested with dell 13gen server.
 
 ### 2. Create fan configurations with `_config-fan.sh`
@@ -140,7 +140,7 @@ The bundled curves are:
 - `elbow`: quieter <50, louder above it.
 
 Feel free to create your own sensors as well as fan curves.
-Its general good practice for the custom ones to be dot files, so they are distinguished.\\
+Its general good practice for the custom ones to be dot files, so they are distinguished.<br>
 All of this makes the script equivalent or even superior to what your motherboard UEFI allows.
 
 ## Safety Notes
@@ -152,5 +152,5 @@ All of this makes the script equivalent or even superior to what your motherboar
   values when those variables are provided by `includes/`. They have default fallbacks and is recommended to not change them.
 - Ensure every active fan has both `SENSOR_CMD` and `FAN_CURVE` (in place or sourced from base).
 - In case of any pass errors or termination, the script is configured to immediately hand over control back to the hardware (to disable manual control), preventing thermal issues in case of script failure.
-  - But note that if your system kernel panics or crashes in such a way that this never occurs it is theoretically possible for the fans to get stuck at low speeds which may result in equipment damage.\\
+  - But note that if your system kernel panics or crashes in such a way that this never occurs it is theoretically possible for the fans to get stuck at low speeds which may result in equipment damage.<br>
 Note that author is not responsibly for any such cases!
