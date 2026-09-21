@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# $1: bool (0 = disable manual fan control, 1 = enable manual fan control)
+
+ipmitool raw 0x30 0x45 0x01 "${1:-1}"

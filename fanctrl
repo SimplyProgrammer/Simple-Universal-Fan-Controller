@@ -61,6 +61,7 @@ if [ ! -x "$SET_FAN_SPEED_CMD" ]; then
 fi
 
 for f in "$SCRIPT_DIR"/includes/* "$SCRIPT_DIR"/includes/.*; do
+	# shellcheck source=/dev/null
 	[ -f "$f" ] && . "$f"
 done
 
@@ -88,9 +89,7 @@ do
 		continue
 	fi
 
-	# SENSOR_CMD is relative to the fan configs real dir (resolve symlinks like fans/*)
 	temp=$(eval "$SENSOR_CMD")
-
 	if [ -z "$temp" ]; then
 		continue
 	fi

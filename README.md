@@ -10,12 +10,13 @@ Unlike similar scripts, this one is:
 * Bare bones and fairly minimalistic - no docker required, minimal extra dependencies, it runs directly on the host in basic `sh`
 
 ## Installation as a systemd Service (work in progress)
-The controller needs `grep`, `awk`, `sed`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices).
+The controller needs `grep`, `awk`, `sed`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices).\\
+You need to be root or have root permissions (`sudo`) in order to proceed!
 
-Clone this repo into /opt/fanctrl (clone depth 1 should be enough).
-After that, set proper ownership and executable permissions:
-
+Clone this repo into /opt/fanctrl (clone depth 1 should be enough) and set proper permissions:
 ```sh
+sudo mkdir -p /opt/fanctrl && cd "$_" && sudo git clone --depth 1 "https://github.com/SimplyProgrammer/Simple-Universal-Fan-Controller.git" . || exit 1
+
 sudo chown -R root:root /opt/fanctrl
 
 sudo find /opt/fanctrl -type d -exec chmod 750 {} +
@@ -28,7 +29,7 @@ sudo find /opt/fanctrl/commands -type f -exec chmod 750 {} +
 sudo find /opt/fanctrl/sensors -type f -exec chmod 750 {} +
 ```
 
-Create and enable the service:
+Create and enable the service (systemd):
 ```sh
 tmp=$(mktemp)
 cat > "$tmp" <<EOF
@@ -93,7 +94,8 @@ both `enable-manual-fan-ctrl` and `set-fan-speed` with the same argument
 contracts as the files in `commands/`.
 
 #### Servers - ipmitool
-For servers make sure that you have ipmi support enabled (if required) and ipmitool installed.
+For servers make sure that you have ipmi support enabled (if required) and ipmitool installed (or other utility that can control the fan speeds).\\
+Note: Supermicro servers are supported as well in theory, but script was only ever tested with dell 13gen server.
 
 ### 2. Create fan configurations with `_config-fan.sh`
 

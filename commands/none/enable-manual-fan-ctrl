@@ -1,0 +1,2 @@
+#!/bin/sh
+# It is what it says, it can be used to pull values from /run/fanctrl/fans/* by external scripts or programs. But for fan control it is recommended to make your own .my-device-config.

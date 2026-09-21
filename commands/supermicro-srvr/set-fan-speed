@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# $1: zone id
+# $2: fan speed pwm (0-100)
+
+ipmitool raw 0x30 0x70 0x66 0x01 "0x$1" "$2"
