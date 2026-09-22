@@ -9,7 +9,7 @@ Unlike similar scripts, this one is:
 * Control through user defined or pre made fan curves that can be extended
 * Bare bones and fairly minimalistic - no docker required, minimal extra dependencies, it runs directly on the host in basic `sh`
 
-## Installation as a systemd Service (work in progress)
+## Installation as a systemd Service
 The controller needs `awk`, `sensors`/`lm-sensors`, and `ipmitool` (for supported devices). `grep` and `sed` are optional but you might need them.<br>
 You need to be root or have root permissions (`sudo`) in order to proceed!
 
